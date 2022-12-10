@@ -9,7 +9,7 @@ import openai
 
 
 openai.api_key = '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'
-prompt = "Equirectangular render of a city in the Middle Ages, 8k uhd"
+prompt = "Equirectangular render of an open space with a theme of a Hyde park, Lonodn, 4K"
 
 index = 0
 
