@@ -9,11 +9,12 @@ import openai
 
 openai.api_key = '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'
 prompt = "High resolution, equirectangular render of a large open space with a theme of a city in the Middle Ages"
+settings = {"n": 1, "size": "512x512", "prompt": prompt}
 
 index = 0
 
 def get_next(src_img: str) -> str:
-    """Given a `src_image`, returns the next 512 pixel to the right
+    """Given a `src_image`, returns the next 256 pixel to the right
     """
     # Get right half of original:
     original = Image.open(src_img)
@@ -31,17 +32,15 @@ def get_next(src_img: str) -> str:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=open("masks/right.png", "rb"),
-        prompt=prompt,
-        n=1,
-        size="1024x1024"
+        mask=open("masks/right_small.png", "rb"),
+        **settings
     )
     image_url = response['data'][0]['url']
     return image_url
 
 
 def get_last(first_img: str, last_img: str) -> str:
-    """Given a `src_image`, returns the next 512 pixel to the right
+    """Given a `src_image`, returns the next 256 pixel to the right
     """
     # Get right half of original:
     first = Image.open(first_img)
@@ -66,10 +65,8 @@ def get_last(first_img: str, last_img: str) -> str:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=open("masks/middle.png", "rb"),
-        prompt=prompt,
-        n=1,
-        size="1024x1024"
+        mask=open("masks/middle_small.png", "rb"),
+        **settings
     )
     image_url = response['data'][0]['url']
     return image_url
@@ -77,49 +74,53 @@ def get_last(first_img: str, last_img: str) -> str:
 def download_image(url: str):
     """
     """
+    print(f'Downloading from url: {url}')
     global index
     image_data = requests.get(url)
-    _image_name = f'{index}.png'
+    _image_name = f'tmpfiles/{index}.png'
     index += 1
     image = Image.open(BytesIO(image_data.content))
     image.save(_image_name)
     return image, _image_name
 
 
-response = openai.Image.create(prompt=prompt, n=1,size="1024x1024")
+print('Genereting the first image...')
+response = openai.Image.create(**settings)
 image_url = response['data'][0]['url']
 pillow_image, image_location = download_image(image_url)
 images = [pillow_image]
 
 first = image_location
 last = image_location
-for _ in range(4):
+for i in range(2):
+    print(f'Genereting the image {i + 2} image...')
     next_url = get_next(image_location)
     pillow_image, image_location = download_image(next_url)
     last = image_location
     images.append(pillow_image)
 
 
+
+print(f'Genereting the LAST image...')
 last_url = get_last(first, last)
 last_pillow_image, last_image_location = download_image(last_url)
 
 
-
-#### Connect them all together:
-
+print("Merging all images together...")
 # Create a new image that will contain all of the merged images
 widths, heights = zip(*(i.size for i in images))
-total_width = int(sum(widths) / 2) + (1024 // 3)
+total_width = int(sum(widths) / 2) + (512 // 3)
 max_height = max(heights)
 new_image = Image.new('RGB', (total_width, max_height))
 
 # Paste each image into the new image
 x_offset = 0
-for im in images:
-    new_image.paste(im, (x_offset, 0))
-    x_offset += im.size[0] - 512
+for i, image in enumerate(images):
+    new_image.paste(image, (x_offset, 0))
+    print(f"Pasted image {i}")
+    x_offset += image.size[0] - 256
 
-x_offset = x_offset + 512 - (1024 // 3)
+x_offset = x_offset + 256 - (512 // 3)
 new_image.paste(last_pillow_image, (x_offset, 0))
 
 # Save the merged image
