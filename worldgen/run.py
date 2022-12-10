@@ -13,7 +13,7 @@ import time
 start_time = perf_counter()
 
 openai.api_key = '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'
-prompt = "Equirectangular render of an alien world, 8k uhd"
+prompt = "Equirectangular render of an alien world, from a first-person point of view, 8k uhd"
 base_size = 512
 iterations = 1
 settings = {"n": 1, "size": f"{base_size}x{base_size}", "prompt": prompt}
