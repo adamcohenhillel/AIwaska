@@ -54,15 +54,14 @@ def get_last(first_img: str, last_img: str) -> str:
 
     # cropped_img = img.crop((left, top, right, bottom))
 
-    left_half = last.crop((base_size // 3 * 2, 0, base_size, base_size))
+    left_half = last.crop((base_size // 4 * 3, 0, base_size, base_size))
     right_half = first.crop((0, 0, base_size // 3 * 2, base_size))
-
 
     # Create a new image that will be the right half and empty
     new = Image.new('RGBA', (base_size, base_size))
     new.paste(left_half, (0, 0))
-    new.paste(right_half, (base_size // 3 * 2, 0))
-    new.save('.tmpfiles/tempmother.png')
+    new.paste(right_half, (base_size // 4 * 3, 0))
+    new.save('.tmpfiles/before_last.png')
     # Convert image to bytes
     im_bytes = BytesIO()
     new.save(im_bytes, format='PNG')
@@ -70,7 +69,7 @@ def get_last(first_img: str, last_img: str) -> str:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=open("masks/middle_small.png", "rb"),
+        mask=open("masks/middle_small_2.png", "rb"),
         **settings
     )
     image_url = response['data'][0]['url']
@@ -110,13 +109,13 @@ for i in range(iterations):
 print(f'Genereting the LAST image...')
 last_url = get_last(first, last)
 last_pillow_image, last_image_location = download_image(last_url)
-last_pillow_image.save('.tmpfiles/finilized.png')
+last_pillow_image.save('.tmpfiles/last.png')
 
 print('******************************')
 print("Merging all images together...")
 # Create a new image that will contain all of the merged images
 init_width = sum([i.size[0] for i in images])
-total_width = (init_width / 2) + (base_size / 2) + (base_size / 3)
+total_width = (init_width / 2) + base_size
 new_image = Image.new('RGB', (int(total_width), base_size))
 
 # Paste each image into the new image
@@ -126,7 +125,7 @@ for i, image in enumerate(images):
     print(f"Pasted image {i}")
     x_offset += image.size[0] - (base_size // 2)
 
-x_offset = x_offset + (base_size // 2) - (base_size // 3)
+x_offset = x_offset + (base_size // 4)
 new_image.paste(last_pillow_image, (x_offset, 0))
 
 # Save the merged image
