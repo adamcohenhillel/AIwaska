@@ -62,7 +62,7 @@ def get_last(first_img: str, last_img: str) -> str:
     new = Image.new('RGBA', (base_size, base_size))
     new.paste(left_half, (0, 0))
     new.paste(right_half, (base_size // 3 * 2, 0))
-    new.save('tmpfiles/tempmother.png')
+    new.save('.tmpfiles/tempmother.png')
     # Convert image to bytes
     im_bytes = BytesIO()
     new.save(im_bytes, format='PNG')
@@ -83,7 +83,7 @@ def download_image(url: str):
     print(f'Downloading from url: {url}')
     global downloaded_index
     image_data = requests.get(url)
-    _image_name = f'tmpfiles/{downloaded_index}.png'
+    _image_name = f'.tmpfiles/{downloaded_index}.png'
     downloaded_index += 1
     image = Image.open(BytesIO(image_data.content))
     image.save(_image_name)
@@ -110,7 +110,7 @@ for i in range(iterations):
 print(f'Genereting the LAST image...')
 last_url = get_last(first, last)
 last_pillow_image, last_image_location = download_image(last_url)
-last_pillow_image.save('tmpfiles/finilized.png')
+last_pillow_image.save('.tmpfiles/finilized.png')
 
 print('******************************')
 print("Merging all images together...")
