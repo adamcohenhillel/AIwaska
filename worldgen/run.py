@@ -38,7 +38,7 @@ def generate_next_frame_url(src_img: str, **kw_settings) -> str:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=right_mask(frame_size=_F_SIZE),
+        mask=right_mask(frame_size=_F_SIZE, size=4),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -98,7 +98,7 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=circled_mask(frame_size=_F_SIZE),
+        mask=sides_mask(frame_size=_F_SIZE),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -153,11 +153,13 @@ def main_loop(settings: Dict) -> None:
         frames.append(frame)
 
         # VARIATIONS:
-        # v_url = generate_frame_variation(frame=frame, **settings)
-        # v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}.png')
-        # variation_frames.append(v_frame)
+        v_url = generate_frame_variation(frame=frame, **settings)
+        v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}.png')
+        variation_frames.append(v_frame)
 
-    merge_frames(frames, dst='vars/a.png')
+    merge_frames(frames)
+
+    merge_frames(variation_frames, dst="examples/variation.png")
     
 
     # for i, v_frame in enumerate(variation_frames):
