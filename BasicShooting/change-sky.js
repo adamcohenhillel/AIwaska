@@ -1,10 +1,6 @@
 AFRAME.registerComponent('school-playground', {
     init: function () {
-      const myTimeout = setTimeout(myGreeting, 10000);
-
-      function myGreeting(){
-        console.log("wait!")
-      }
+      
       // Solution for Modifying Entities.
       var sceneEl = document.querySelector('a-scene'); 
       var backgroundImages = [            
