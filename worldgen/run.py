@@ -105,9 +105,10 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     return image_url
 
 
-def merge_frames(frames: List[WorldFrame]) -> None:
+def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
     """Merging all frames together, the last frame is used differently #TODO: Explain better
     """
+    dst = dst if dst else f'examples/full_{uuid4()}.png'
     print('******************************')
     print('Merging all images together...')
     last_frame = frames.pop()
@@ -128,13 +129,14 @@ def merge_frames(frames: List[WorldFrame]) -> None:
     new_image.paste(last_frame['image'], (x_offset, 0))
 
     # Save the merged image
-    new_image.save(f'examples/full_{uuid4()}.png')
+    new_image.save(dst)
 
 
 def main_loop(settings: Dict) -> None:
     """
     """
     frames: List[WorldFrame] = []
+    variation_frames: List[WorldFrame] = []
     last_path = ''
     for i in range(_F_NUM):
         print(f'\nGenereting frame #{i}...')
@@ -147,13 +149,22 @@ def main_loop(settings: Dict) -> None:
             url = generate_last_frame_url(frames[0]['path'], frames[-1]['path'], **settings)
 
         frame = download_image(url, dst=f'.tmpfiles/{i}.png')
-        if i == 0:
-            a = generate_frame_variation(frame=frame, **settings)
-            download_image(a, dst=f'.tmpfiles/unique.png')
         last_path = frame['path']
         frames.append(frame)
 
-    merge_frames(frames)
+        # VARIATIONS:
+        # v_url = generate_frame_variation(frame=frame, **settings)
+        # v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}.png')
+        # variation_frames.append(v_frame)
+
+    merge_frames(frames, dst='vars/a.png')
+    
+
+    # for i, v_frame in enumerate(variation_frames):
+    #     if i < len(frames):
+    #         frames[i] = v_frame
+    #         merge_frames(frames, dst=f'vars/{i}.png')
+
 
 
 if __name__ == '__main__':

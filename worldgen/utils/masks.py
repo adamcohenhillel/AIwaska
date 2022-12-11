@@ -34,7 +34,7 @@ def right_mask(frame_size: int = 512) -> bytes:
 def circled_mask(frame_size: int = 512) ->  bytes:
     circle_mask = Image.new('RGBA', (frame_size, frame_size), (0, 0, 0, 255))
     draw = ImageDraw.Draw(circle_mask)
-    draw.ellipse((10, 10, 502, 502), fill=(255, 255, 255, 0))
+    draw.ellipse((200, 200, 384, 384), fill=(255, 255, 255, 0))
     # circle_mask.save('debug.png')
     mask_bytes = BytesIO()
     circle_mask.save(mask_bytes, format='PNG')
