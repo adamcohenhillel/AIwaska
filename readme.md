@@ -13,13 +13,16 @@ In the future, entertainment will be all about personalization. AIwaska is a con
 
 ### Install:
 ```
-git clone 
+git clone https://github.com/adamcohenhillel/aiwaska.git
 ```
 ```
-cd
+cd aiwaska/client
 ```
 ```
-./install.sh
+npm install
+```
+```
+npm start
 ```
 
 ### Config:
