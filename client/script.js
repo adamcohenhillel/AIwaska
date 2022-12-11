@@ -1,16 +1,15 @@
 let nextLevel = 'index.html';
 
-// create boolete and set proprties
 const shoot = () => {
   const bullet = document.createElement("a-sphere");
   let pos = myCamera.getAttribute("position");
   bullet.setAttribute("position", pos);
-  bullet.setAttribute("velocity", getDirection(myCamera, 30)); //set speed 30 to the direction of cemera
+  bullet.setAttribute("velocity", getDirection(myCamera, 30)); 
   bullet.setAttribute("dynamic-body", true);
   bullet.setAttribute("radius", 0.5);
   bullet.setAttribute("src", "https://i.imgur.com/H8e3Vnu.png");
   myScene.appendChild(bullet);
-  bullet.addEventListener('collide', shootCollided); //every time the bollete collide call shoot collide callback
+  bullet.addEventListener('collide', shootCollided); 
 };
 
 const teleport = () => {
@@ -31,7 +30,7 @@ const teleport = () => {
 
 const shootCollided = event => {
   if (event.detail.body.el.id === 'floor') {
-    console.log('Hit the floor'); //when hit
+    console.log('Hit the floor'); 
     event.detail.target.el.removeEventListener('collide', shootCollided);
     myScene.removeChild(event.detail.target.el);
   } else if (event.detail.body.el.className === 'target') {
