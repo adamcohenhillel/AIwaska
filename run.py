@@ -4,7 +4,7 @@ import webbrowser
 import openai
 
 from world_generator.world_generator import generate_new_world
-from config import OPENAI_KEY, F_SIZE
+from config import OPENAI_KEY, FRAME_SIZE
 
 
 openai.api_key = OPENAI_KEY
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     prompt = 'Middle Ages town hall'
     fixed_prompt = f'Equirectangular render of {prompt}, from a first-person point of view'
 
-    settings = {'n': 1, 'size': f'{F_SIZE}x{F_SIZE}', 'prompt': fixed_prompt}
+    settings = {'n': 1, 'size': f'{FRAME_SIZE}x{FRAME_SIZE}', 'prompt': fixed_prompt}
     generate_new_world(settings, dst=world_path)
 
     url = 'file:///path/to/your/file/testdata.html'

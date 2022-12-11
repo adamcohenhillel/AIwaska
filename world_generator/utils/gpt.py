@@ -6,12 +6,12 @@ from json import JSONDecodeError, loads
 import openai
 openai.api_key = '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'
 
-def get_prompt_variations(prompt: str, num: int = 20) -> List:
+def get_prompt_variations(prompt: str, count: int = 20) -> List:
     """
     """
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt=f"Create a JSON list of {num} random objects that relate to \"{prompt}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]",
+        prompt=f"Create a JSON list of {count} random objects that relate to \"{prompt}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]",
         # prompt=f"Create a JSON list of {num} related prompts that describe a \"{prompt}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]",
         temperature=0.7,
         max_tokens=3000,

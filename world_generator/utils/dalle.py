@@ -8,20 +8,20 @@ from typing import Optional
 import openai
 from PIL import Image
 
-from config import F_SIZE
+from config import FRAME_SIZE
 from world_generator.utils.types import WorldFrame
 from world_generator.utils.masks import sides_mask, right_mask, circled_mask
 
 
 def generate_next_frame_url(src_img: str, **kw_settings) -> str:
-    """Given a `src_image`, returns the next `F_SIZE` pixels to the right
+    """Given a `src_image`, returns the next `FRAME_SIZE` pixels to the right
     """
     # Get right half of original:
     original = Image.open(src_img)
-    left_half = original.crop((F_SIZE // 2, 0, F_SIZE, F_SIZE))
+    left_half = original.crop((FRAME_SIZE // 2, 0, FRAME_SIZE, FRAME_SIZE))
 
     # Create a new image that will be the right half and empty
-    without_right = Image.new('RGBA', (F_SIZE, F_SIZE))
+    without_right = Image.new('RGBA', (FRAME_SIZE, FRAME_SIZE))
     without_right.paste(left_half, (0, 0))
 
     # Convert image to bytes
@@ -47,13 +47,13 @@ def generate_last_frame_url(first_img: str, last_img: str, **kw_settings) -> str
 
     # cropped_img = img.crop((left, top, right, bottom))
 
-    left_half = last.crop((F_SIZE // 4 * 3, 0, F_SIZE, F_SIZE))
-    right_half = first.crop((0, 0, F_SIZE // 3 * 2, F_SIZE))
+    left_half = last.crop((FRAME_SIZE // 4 * 3, 0, FRAME_SIZE, FRAME_SIZE))
+    right_half = first.crop((0, 0, FRAME_SIZE // 3 * 2, FRAME_SIZE))
 
     # Create a new image that will be the right half and empty
-    new = Image.new('RGBA', (F_SIZE, F_SIZE))
+    new = Image.new('RGBA', (FRAME_SIZE, FRAME_SIZE))
     new.paste(left_half, (0, 0))
-    new.paste(right_half, (F_SIZE // 4 * 3, 0))
+    new.paste(right_half, (FRAME_SIZE // 4 * 3, 0))
     # new.save('.tmpfiles/debug_before_last.png')
     
     # Convert image to bytes
