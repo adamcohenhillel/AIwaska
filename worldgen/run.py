@@ -4,7 +4,7 @@ from io import BytesIO
 from uuid import uuid4
 import requests
 from time import perf_counter
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import openai
 from PIL import Image
@@ -12,10 +12,12 @@ from PIL import Image
 from utils.types import WorldFrame
 
 
+# TODO: Better config
 openai.api_key = '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'
 _F_SIZE = 512
-iterations = 1
-downloaded_index = 0
+_F_NUM = 3
+#########
+
 
 def generate_next_frame_url(src_img: str, **kw_settings) -> str:
     """Given a `src_image`, returns the next `_F_SIZE` pixels to the right
@@ -58,7 +60,8 @@ def generate_last_frame_url(first_img: str, last_img: str, **kw_settings) -> str
     new = Image.new('RGBA', (_F_SIZE, _F_SIZE))
     new.paste(left_half, (0, 0))
     new.paste(right_half, (_F_SIZE // 4 * 3, 0))
-    new.save('.tmpfiles/before_last.png')
+    # new.save('.tmpfiles/debug_before_last.png')
+    
     # Convert image to bytes
     im_bytes = BytesIO()
     new.save(im_bytes, format='PNG')
@@ -73,20 +76,18 @@ def generate_last_frame_url(first_img: str, last_img: str, **kw_settings) -> str
     return image_url
 
 
-def download_image(url: str) -> WorldFrame:
+def download_image(url: str, dst: Optional[str] = None) -> WorldFrame:
     """
     """
-    print(f'Downloading from url: {url}')
-    global downloaded_index
+    dst = dst if dst else f'.tmpfiles/{uuid4()}.png'
+    print(f'Downloading from url: {url} to {dst}')
     image_data = requests.get(url)
-    _image_name = f'.tmpfiles/{downloaded_index}.png'
-    downloaded_index += 1
     image = Image.open(BytesIO(image_data.content))
-    image.save(_image_name)
-    return WorldFrame(path=_image_name, image=image)
+    image.save(dst)
+    return WorldFrame(path=dst, image=image)
 
 
-def merge_frames(frames: List[WorldFrame]):
+def merge_frames(frames: List[WorldFrame]) -> None:
     """Merging all frames together, the last frame is used differently #TODO: Explain better
     """
     print('******************************')
@@ -112,25 +113,24 @@ def merge_frames(frames: List[WorldFrame]):
     new_image.save(f'examples/full_{uuid4()}.png')
 
 
-def main_loop(settings: Dict) -> None:    
-    print('******************************')
-    print('Genereting the first image...')
-    response = openai.Image.create(**settings)
-    image_url = response['data'][0]['url']
+def main_loop(settings: Dict) -> None:
+    """
+    """
+    frames: List[WorldFrame] = []
+    last_path = ''
+    for i in range(_F_NUM):
+        print(f'\nGenereting frame #{i}...')
+        if i == 0:
+            response = openai.Image.create(**settings)
+            url = response['data'][0]['url']
+        elif i < _F_NUM - 1:
+            url = generate_next_frame_url(last_path, **settings)
+        else:
+            url = generate_last_frame_url(frames[0]['path'], frames[-1]['path'], **settings)
 
-    frame = download_image(image_url)
-    frames: List[WorldFrame] = [frame]
-
-    for i in range(iterations):
-        print(f'Genereting the image {i + 2} image...')
-        next_url = generate_next_frame_url(frame['path'], **settings)
-        frame = download_image(next_url)
+        frame = download_image(url, dst=f'.tmpfiles/{i}.png')
+        last_path = frame['path']
         frames.append(frame)
-    
-    print(f'Genereting a close-loop LAST image')
-    last_url = generate_last_frame_url(frames[0]['path'], frames[-1]['path'], **settings)
-    last_frame = download_image(last_url)
-    frames.append(last_frame)
 
     merge_frames(frames)
 
