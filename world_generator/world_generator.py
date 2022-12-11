@@ -9,10 +9,10 @@ from typing import List, Dict, Optional
 import openai
 from PIL import Image
 
-from worldgen.utils.decorators import print_execution_time
-from worldgen.utils.types import WorldFrame
-from worldgen.utils.masks import sides_mask, right_mask
-from worldgen.utils.gpt import get_prompt_variations
+from world_generator.utils.decorators import print_execution_time
+from world_generator.utils.types import WorldFrame
+from world_generator.utils.masks import sides_mask, right_mask
+from world_generator.utils.gpt import get_prompt_variations
 
 
 # TODO: Better config

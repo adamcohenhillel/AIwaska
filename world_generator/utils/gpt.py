@@ -11,7 +11,7 @@ def get_prompt_variations(prompt: str, num: int = 20) -> List:
     """
     response = openai.Completion.create(
         model="text-davinci-003",
-        prompt=f"Create a JSON list of {num} random words that relate to \"{prompt}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]",
+        prompt=f"Create a JSON list of {num} random objects that relate to \"{prompt}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]",
         # prompt=f"Create a JSON list of {num} related prompts that describe a \"{prompt}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]",
         temperature=0.7,
         max_tokens=3000,

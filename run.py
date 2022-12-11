@@ -1,6 +1,6 @@
 import webbrowser
 
-from worldgen.generate import main_loop, _F_SIZE
+from world_generator.world_generator import main_loop, _F_SIZE
 
 
 if __name__ == '__main__':
