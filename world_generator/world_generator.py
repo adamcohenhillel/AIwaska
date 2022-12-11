@@ -8,15 +8,15 @@ import openai
 from PIL import Image
 
 from config import F_SIZE, F_NUM
-from world_generator.utils.decorators import print_execution_time
-from world_generator.utils.types import WorldFrame
-from world_generator.utils.gpt import get_prompt_variations
 from world_generator.utils.dalle import (
     download_image,
     generate_frame_variation,
     generate_last_frame_url,
     generate_next_frame_url
 )
+from world_generator.utils.decorators import print_execution_time
+from world_generator.utils.gpt import get_prompt_variations
+from world_generator.utils.types import WorldFrame
 
 
 def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
@@ -47,7 +47,7 @@ def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
 
 
 @print_execution_time
-def main_loop(settings: Dict) -> None:
+def generate_new_world(settings: Dict, dst: str) -> None:
     """
     """
     frames: List[WorldFrame] = []
@@ -80,14 +80,13 @@ def main_loop(settings: Dict) -> None:
                 v_url = generate_frame_variation(frame=frame, **settings)
                 v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}_{j}.png')
                 variation_frames[i].append(v_frame)
-        else:
+        elif len(variation_frames[i]) == 0:
             variation_frames[i].append(frame)
 
 
-    merge_frames(frames)
-
+    merge_frames(frames, dst=f'{dst}/_variation_og.png')
     # VARIATIONS:
     tt = [b for b in variation_frames.values()]
     tt_2 = list(itertools.product(*tt))
     for i, c in enumerate(tt_2):
-        merge_frames(list(c), dst=f"examples/variation_{i}.png")
+        merge_frames(list(c), dst=f'{dst}/variation_{i}.png')

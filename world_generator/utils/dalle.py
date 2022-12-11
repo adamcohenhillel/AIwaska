@@ -10,7 +10,7 @@ from PIL import Image
 
 from config import F_SIZE
 from world_generator.utils.types import WorldFrame
-from world_generator.utils.masks import sides_mask, right_mask
+from world_generator.utils.masks import sides_mask, right_mask, circled_mask
 
 
 def generate_next_frame_url(src_img: str, **kw_settings) -> str:
@@ -31,7 +31,7 @@ def generate_next_frame_url(src_img: str, **kw_settings) -> str:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=right_mask(frame_size=F_SIZE, size=4),
+        mask=right_mask(size=4),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -63,7 +63,7 @@ def generate_last_frame_url(first_img: str, last_img: str, **kw_settings) -> str
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=sides_mask(frame_size=F_SIZE),
+        mask=sides_mask(),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -92,7 +92,7 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=sides_mask(frame_size=F_SIZE),
+        mask=circled_mask(),
         **kw_settings
     )
     image_url = response['data'][0]['url']
