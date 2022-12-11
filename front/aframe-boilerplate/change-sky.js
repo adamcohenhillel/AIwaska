@@ -4,10 +4,10 @@ AFRAME.registerComponent('school-playground', {
       // Solution for Modifying Entities.
       var sceneEl = document.querySelector('a-scene'); 
       var backgroundImages = [                    
-          "assets1/.jpg",
+          "assets/1.jpg",
+           "assets/2.jpg",
            "assets/3.jpg"
-         ];   
-        ];
+         ];           
         setInterval(changeBackground, 3000);                                
         let currentBackgroundIndex = 0;
       
