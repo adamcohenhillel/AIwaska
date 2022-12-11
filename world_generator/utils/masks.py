@@ -44,7 +44,7 @@ def circled_mask() ->  bytes:
     rand_y = randint(0, maximum_y)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((rand_x, rand_y, rand_x + r, rand_y + r), fill=(255, 255, 255, 0))
-    mask.save('debug.png')
+    # mask.save('debug.png')
     mask_bytes = BytesIO()
     mask.save(mask_bytes, format='PNG')
     return mask_bytes.getvalue()

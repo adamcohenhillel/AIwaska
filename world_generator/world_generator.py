@@ -7,7 +7,7 @@ from typing import List, Dict, Optional
 import openai
 from PIL import Image
 
-from config import FRAME_SIZE, FRAME_COUNT, VARIATIONS_PER_FRAME
+from config import FRAME_SIZE, FRAME_COUNT, VARIATIONS
 from world_generator.utils.dalle import (
     download_image,
     generate_frame_variation,
@@ -71,28 +71,26 @@ def generate_new_world(settings: Dict, dst: str) -> None:
 
 
     # Variations:
-    prompt_variations = get_prompt_variations(settings['prompt'], count=VARIATIONS_PER_FRAME)
+    # prompt_variations = get_prompt_variations(settings['prompt'], count=VARIATIONS)
     width, _ = merged_frame['image'].size
 
     latest = merged_frame['image']
-    for i, prompt in enumerate(prompt_variations):
-        print('££££££££££££££')
-        print(prompt)
-        print('££££££££££££££')
-        s = settings.copy()
-        s['prompt'] = prompt
+    for i in range(VARIATIONS):
+        print(f'Generating variation {i + 1}')
+        # s = settings.copy()
+        # s['prompt'] = prompt
         new_variation = latest
-        # Calculate the coordinates of the current frame
-        x1 = i*(width // len(prompt_variations))
+
+        x1 = i*(width // VARIATIONS)
         y1 = 0
         x2 = x1 + 1024
         y2 = 1024
 
         # Crop the image to get the current frame
         frame = new_variation.crop((x1, y1, x2, y2))
-        frame.save(f'frame_{i}_before.png')
-        v_url = generate_frame_variation(frame=frame, **s)
-        v_frame = download_image(v_url, dst=f'frame_{i}_after.png')
+        # frame.save(f'frame_{i}_before.png')
+        v_url = generate_frame_variation(frame=frame, **settings)
+        v_frame = download_image(v_url, dst=f'.tmpfiles/frame_{i}_after.png')
         new_variation.paste(v_frame['image'], (x1, 0))
         new_variation.save(f'{dst}/{i+1}.png')
         latest = new_variation
