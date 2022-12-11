@@ -1,7 +1,5 @@
-# AlienWorlds, Concept Game
-The Future of entertainment is customization.
-
-Our new open source project, Dalle-e and A-frame, allows game developers to create custom 360 degree games with ease. Using our intuitive interface, developers can quickly and easily build immersive, interactive worlds without the need for complex coding. Whether you're a seasoned professional or a newcomer to the world of game development, Dalle-e and A-frame make it easy to bring your ideas to life. Give your players the ultimate gaming experience with Dalle-e and A-frame.
+# AIwaska, Concept Game
+In the future, entertainment will be all about personalization. AIwaska is a concept game that showcases this capability by using a Generative-AI engine to create an immersive, 360, interactive world based on a user prompt. This technology can be used by game developers to reduce production costs, or by users who want to explore custom worlds tailored to their desires.
 
 
 # How to Run:
