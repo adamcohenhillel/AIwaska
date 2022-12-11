@@ -53,7 +53,7 @@ def generate_new_world(settings: Dict, dst: str) -> None:
     frames: List[WorldFrame] = []
     variation_frames: Dict[List[WorldFrame]] = {}
     last_path = ''
-    prompt_variations = get_prompt_variations(settings['prompt'], num=4)
+    prompt_variations = get_prompt_variations(settings['prompt'], num=5)
 
     for i in range(F_NUM):
         print(f'\nGenereting frame #{i}...')
