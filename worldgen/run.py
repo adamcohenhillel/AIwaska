@@ -101,7 +101,7 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=sides_mask(frame_size=_F_SIZE),
+        mask=sides_mask(frame_size=_F_SIZE, variation=True),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -181,7 +181,7 @@ def main_loop(settings: Dict) -> None:
 if __name__ == '__main__':
     start_time = perf_counter()
     # prompt = input('What world do you want to play in? ')
-    prompt = 'Equirectangular render of an alien world, from a first-person point of view, 8k uhd'
+    prompt = 'Equirectangular render of a psychedelic alien world, from a first-person point of view, 8k uhd'
     settings = {'n': 1, 'size': f'{_F_SIZE}x{_F_SIZE}', 'prompt': prompt}
     main_loop(settings)
     run_time = perf_counter() - start_time
