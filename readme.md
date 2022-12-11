@@ -2,6 +2,12 @@
 In the future, entertainment will be all about personalization. AIwaska is a concept game that showcases this capability by using a Generative-AI engine to create an immersive, 360, interactive world based on a user prompt. This technology can be used by game developers to reduce production costs, or by users who want to explore custom worlds tailored to their desires.
 
 
+### Example 1: Middle Ages town hall
+
+
+### Example 1: Middle Ages town hall, with a psychedelic teleport door opens up to the future
+
+
 # How to Run:
 
 ### Install:

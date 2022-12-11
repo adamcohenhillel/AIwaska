@@ -19,10 +19,9 @@ from world_generator.utils.gpt import get_prompt_variations
 from world_generator.utils.types import WorldFrame
 
 
-def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> WorldFrame:
+def merge_frames(frames: List[WorldFrame], dst: str) -> WorldFrame:
     """Merging all frames together, the last frame is used differently #TODO: Explain better
     """
-    dst = dst if dst else f'examples/full_{uuid4()}.png'
     last_frame = frames.pop()
 
     # Create a new image that will contain all of the merged images
@@ -75,22 +74,25 @@ def generate_new_world(settings: Dict, dst: str) -> None:
     width, _ = merged_frame['image'].size
 
     latest = merged_frame['image']
-    for i in range(VARIATIONS):
-        print(f'Generating variation {i + 1}')
-        # s = settings.copy()
-        # s['prompt'] = prompt
-        new_variation = latest
+    total = 1
+    for j in range(10):
+        for i in range(VARIATIONS):
+            print(f'Generating variation {i + 1}')
+            # s = settings.copy()
+            # s['prompt'] = prompt
+            new_variation = latest
 
-        x1 = i*(width // VARIATIONS)
-        y1 = 0
-        x2 = x1 + 1024
-        y2 = 1024
+            x1 = i*(width // VARIATIONS)
+            y1 = 0
+            x2 = x1 + 1024
+            y2 = 1024
 
-        # Crop the image to get the current frame
-        frame = new_variation.crop((x1, y1, x2, y2))
-        # frame.save(f'frame_{i}_before.png')
-        v_url = generate_frame_variation(frame=frame, **settings)
-        v_frame = download_image(v_url, dst=f'.tmpfiles/frame_{i}_after.png')
-        new_variation.paste(v_frame['image'], (x1, 0))
-        new_variation.save(f'{dst}/{i+1}.png')
-        latest = new_variation
+            # Crop the image to get the current frame
+            frame = new_variation.crop((x1, y1, x2, y2))
+            # frame.save(f'frame_{i}_before.png')
+            v_url = generate_frame_variation(frame=frame, **settings)
+            v_frame = download_image(v_url, dst=f'.tmpfiles/frame_{i}_after.png')
+            new_variation.paste(v_frame['image'], (x1, 0))
+            new_variation.save(f'{dst}/{total}.png')
+            latest = new_variation
+            total += 1
