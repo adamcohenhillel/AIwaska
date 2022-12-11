@@ -10,6 +10,7 @@ import openai
 from PIL import Image
 
 from utils.types import WorldFrame
+from utils.masks import circled_mask, sides_mask, right_mask
 
 
 # TODO: Better config
@@ -37,7 +38,7 @@ def generate_next_frame_url(src_img: str, **kw_settings) -> str:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=open('masks/right_small.png', 'rb'),
+        mask=right_mask(frame_size=_F_SIZE),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -69,7 +70,7 @@ def generate_last_frame_url(first_img: str, last_img: str, **kw_settings) -> str
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=open('masks/middle_small_2.png', 'rb'),
+        mask=sides_mask(frame_size=_F_SIZE),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -85,6 +86,23 @@ def download_image(url: str, dst: Optional[str] = None) -> WorldFrame:
     image = Image.open(BytesIO(image_data.content))
     image.save(dst)
     return WorldFrame(path=dst, image=image)
+
+
+def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
+    """Given a `src_image`, returns the next 256 pixel to the right
+    """
+    # Save the image to a BytesIO object
+    im_bytes = BytesIO()
+    frame['image'].save(im_bytes, format='PNG')
+
+    # Get extend to the right right: 
+    response = openai.Image.create_edit(
+        image=im_bytes.getvalue(),
+        mask=circled_mask(frame_size=_F_SIZE),
+        **kw_settings
+    )
+    image_url = response['data'][0]['url']
+    return image_url
 
 
 def merge_frames(frames: List[WorldFrame]) -> None:
@@ -129,6 +147,9 @@ def main_loop(settings: Dict) -> None:
             url = generate_last_frame_url(frames[0]['path'], frames[-1]['path'], **settings)
 
         frame = download_image(url, dst=f'.tmpfiles/{i}.png')
+        if i == 0:
+            a = generate_frame_variation(frame=frame, **settings)
+            download_image(a, dst=f'.tmpfiles/unique.png')
         last_path = frame['path']
         frames.append(frame)
 
