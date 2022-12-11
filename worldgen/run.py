@@ -1,5 +1,7 @@
 """The Edge of Reality
 """
+import itertools
+from random import choice
 from io import BytesIO
 from uuid import uuid4
 import requests
@@ -10,7 +12,7 @@ import openai
 from PIL import Image
 
 from utils.types import WorldFrame
-from utils.masks import circled_mask, sides_mask, right_mask
+from utils.masks import sides_mask, right_mask
 
 
 # TODO: Better config
@@ -94,7 +96,8 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     # Save the image to a BytesIO object
     im_bytes = BytesIO()
     frame['image'].save(im_bytes, format='PNG')
-
+    
+    kw_settings["prompt"] = 'psychedelic'
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
@@ -136,7 +139,7 @@ def main_loop(settings: Dict) -> None:
     """
     """
     frames: List[WorldFrame] = []
-    variation_frames: List[WorldFrame] = []
+    variation_frames: Dict[List[WorldFrame]] = {}
     last_path = ''
     for i in range(_F_NUM):
         print(f'\nGenereting frame #{i}...')
@@ -151,22 +154,28 @@ def main_loop(settings: Dict) -> None:
         frame = download_image(url, dst=f'.tmpfiles/{i}.png')
         last_path = frame['path']
         frames.append(frame)
-
+        
+        if i not in variation_frames.keys():
+            variation_frames[i] = []
+    
         # VARIATIONS:
-        v_url = generate_frame_variation(frame=frame, **settings)
-        v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}.png')
-        variation_frames.append(v_frame)
+        if i > 0 and i < _F_NUM - 1:
+            for j in range(1):
+                v_url = generate_frame_variation(frame=frame, **settings)
+                v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}_{j}.png')
+                variation_frames[i].append(v_frame)
+        else:
+            variation_frames[i].append(frame)
+
 
     merge_frames(frames)
 
-    merge_frames(variation_frames, dst="examples/variation.png")
+    # VARIATIONS:
+    tt = [b for b in variation_frames.values()]
+    tt_2 = list(itertools.product(*tt))
+    for i, c in enumerate(tt_2):
+        merge_frames(list(c), dst=f"examples/variation_{i}.png")
     
-
-    # for i, v_frame in enumerate(variation_frames):
-    #     if i < len(frames):
-    #         frames[i] = v_frame
-    #         merge_frames(frames, dst=f'vars/{i}.png')
-
 
 
 if __name__ == '__main__':

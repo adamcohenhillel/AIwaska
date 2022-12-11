@@ -5,7 +5,6 @@ from io import BytesIO
 from PIL import Image, ImageDraw
 
 
-# Non-Middle Mask:
 def sides_mask(frame_size: int = 512) -> bytes:
     """Generate a mask with left and right borders
     """
@@ -13,7 +12,10 @@ def sides_mask(frame_size: int = 512) -> bytes:
     black_part = Image.new('RGBA', (frame_size // 4, frame_size), (0, 0, 0, 255))
     mask.paste(black_part, (0, 0))
     mask.paste(black_part, (frame_size // 4 * 3, 0))
-    # mask.save('debug.png')
+
+    mask.paste(black_part, (frame_size // 4, 0))
+
+    mask.save('debug.png')
     mask_bytes = BytesIO()
     mask.save(mask_bytes, format='PNG')
     return mask_bytes.getvalue()
