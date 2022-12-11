@@ -23,8 +23,6 @@ def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
     """Merging all frames together, the last frame is used differently #TODO: Explain better
     """
     dst = dst if dst else f'examples/full_{uuid4()}.png'
-    print('******************************')
-    print('Merging all images together...')
     last_frame = frames.pop()
 
     # Create a new image that will contain all of the merged images
@@ -68,11 +66,11 @@ def generate_new_world(settings: Dict, dst: str) -> None:
         frame = download_image(url, dst=f'.tmpfiles/{i}.png')
         last_path = frame['path']
         frames.append(frame)
-        
+
+        # VARIATIONS:        
         if i not in variation_frames.keys():
             variation_frames[i] = []
-    
-        # VARIATIONS:
+
         if i > 0 and i < F_NUM - 1:
             for j, var in enumerate(prompt_variations):
                 s = settings.copy()

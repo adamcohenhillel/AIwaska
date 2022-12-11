@@ -88,7 +88,7 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     im_bytes = BytesIO()
     frame['image'].save(im_bytes, format='PNG')
     
-    kw_settings["prompt"] = 'psychedelic'
+    kw_settings["prompt"] = kw_settings["prompt"] + 'psychedelic' 
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
