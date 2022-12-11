@@ -35,7 +35,7 @@ def right_mask(size: int = 2) -> bytes:
 def circled_mask() ->  bytes:
     mask = Image.new('RGBA', (FRAME_SIZE, FRAME_SIZE), (0, 0, 0, 255))
 
-    r = FRAME_SIZE // 3
+    r = FRAME_SIZE // 2
     minimum_x = FRAME_SIZE // 4
     maximum_x = (FRAME_SIZE // 4 * 3) - (r//2)
     maximum_y = FRAME_SIZE - (r//2)

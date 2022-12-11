@@ -1,6 +1,6 @@
 """The Edge of Reality
 """
-import itertools
+from random import randint
 from uuid import uuid4
 from typing import List, Dict, Optional
 
@@ -19,7 +19,7 @@ from world_generator.utils.gpt import get_prompt_variations
 from world_generator.utils.types import WorldFrame
 
 
-def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
+def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> WorldFrame:
     """Merging all frames together, the last frame is used differently #TODO: Explain better
     """
     dst = dst if dst else f'examples/full_{uuid4()}.png'
@@ -34,7 +34,6 @@ def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
     x_offset = 0
     for i, frame in enumerate(frames):
         new_image.paste(frame['image'], (x_offset, 0))
-        print(f'Pasted image {i}')
         x_offset += frame['image'].size[0] - (FRAME_SIZE // 2)
 
     x_offset = x_offset + (FRAME_SIZE // 4)
@@ -42,6 +41,8 @@ def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
 
     # Save the merged image
     new_image.save(dst)
+    print('Frames merged for first iteration')
+    return WorldFrame(path=dst, image=new_image)
 
 
 @print_execution_time
@@ -49,9 +50,7 @@ def generate_new_world(settings: Dict, dst: str) -> None:
     """
     """
     frames: List[WorldFrame] = []
-    variation_frames: Dict[List[WorldFrame]] = {}
     last_path = ''
-    prompt_variations = get_prompt_variations(settings['prompt'], count=VARIATIONS_PER_FRAME)
 
     for i in range(FRAME_COUNT):
         print(f'\nGenereting frame #{i}...')
@@ -67,24 +66,33 @@ def generate_new_world(settings: Dict, dst: str) -> None:
         last_path = frame['path']
         frames.append(frame)
 
-        # # VARIATIONS:        
-        # if i not in variation_frames.keys():
-        #     variation_frames[i] = []
 
-        # if i > 0 and i < FRAME_COUNT - 1:
-        #     for j, var in enumerate(prompt_variations):
-        #         s = settings.copy()
-        #         s['prompt'] = var
-        #         v_url = generate_frame_variation(frame=frame, **settings)
-        #         v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}_{j}.png')
-        #         variation_frames[i].append(v_frame)
-        # elif len(variation_frames[i]) == 0:
-        #     variation_frames[i].append(frame)
+    merged_frame = merge_frames(frames, dst=f'{dst}/0.png')
 
 
-    merge_frames(frames, dst=f'{dst}/0.png')
-    # # VARIATIONS:
-    # tt = [b for b in variation_frames.values()]
-    # tt_2 = list(itertools.product(*tt))
-    # for i, c in enumerate(tt_2):
-    #     merge_frames(list(c), dst=f'{dst}/{i+1}.png')
+    # Variations:
+    prompt_variations = get_prompt_variations(settings['prompt'], count=VARIATIONS_PER_FRAME)
+    width, _ = merged_frame['image'].size
+
+    latest = merged_frame['image']
+    for i, prompt in enumerate(prompt_variations):
+        print('££££££££££££££')
+        print(prompt)
+        print('££££££££££££££')
+        s = settings.copy()
+        s['prompt'] = prompt
+        new_variation = latest
+        # Calculate the coordinates of the current frame
+        x1 = i*(width // len(prompt_variations))
+        y1 = 0
+        x2 = x1 + 1024
+        y2 = 1024
+
+        # Crop the image to get the current frame
+        frame = new_variation.crop((x1, y1, x2, y2))
+        frame.save(f'frame_{i}_before.png')
+        v_url = generate_frame_variation(frame=frame, **s)
+        v_frame = download_image(v_url, dst=f'frame_{i}_after.png')
+        new_variation.paste(v_frame['image'], (x1, 0))
+        new_variation.save(f'{dst}/{i+1}.png')
+        latest = new_variation

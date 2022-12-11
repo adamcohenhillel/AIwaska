@@ -81,14 +81,14 @@ def download_image(url: str, dst: Optional[str] = None) -> WorldFrame:
     return WorldFrame(path=dst, image=image)
 
 
-def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
+def generate_frame_variation(frame, **kw_settings) -> WorldFrame:
     """Given a `src_image`, returns the next 256 pixel to the right
     """
     # Save the image to a BytesIO object
     im_bytes = BytesIO()
-    frame['image'].save(im_bytes, format='PNG')
+    frame.save(im_bytes, format='PNG')
     
-    kw_settings["prompt"] = kw_settings["prompt"] + 'psychedelic' 
+    kw_settings["prompt"] = 'psychedelic' 
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
