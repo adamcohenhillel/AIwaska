@@ -1,23 +1,22 @@
 """The Edge of Reality
 """
 import itertools
-from random import choice
 from io import BytesIO
 from uuid import uuid4
 import requests
-from time import perf_counter
 from typing import List, Dict, Optional
 
 import openai
 from PIL import Image
 
-from utils.types import WorldFrame
-from utils.masks import sides_mask, right_mask
+from worldgen.utils.decorators import print_execution_time
+from worldgen.utils.types import WorldFrame
+from worldgen.utils.masks import sides_mask, right_mask
 
 
 # TODO: Better config
 openai.api_key = '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'
-_F_SIZE = 512
+_F_SIZE = 1024
 _F_NUM = 3
 #########
 
@@ -135,9 +134,20 @@ def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
     new_image.save(dst)
 
 
+@print_execution_time
 def main_loop(settings: Dict) -> None:
     """
     """
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=f"Create a JSON list of 20 related prompts that describe a \"{settings['prompt']}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]\n\n[\"The sky is a rainbow of swirling colors\", \"Strange creatures darting through the clouds\", \"Gigantic crystals stretch up to the horizon\", \"The air is filled with a dream-like mist\", \"Floating islands filled with vibrant vegetation\", \"Trees of pink, purple, and blue\", \"Distant stars twinkle like neon lights\", \"Glimmering waterfalls cascading through the sky\", \"The ground is covered in a strange luminescent moss\", \"Gigantic mushrooms dot the landscape\", \"Gravity is unpredictable and ever-changing\", \"Time appears to stand still in this realm\", \"A soft, alien melody plays in the background\", \"The sun is a bright, multi-colored prism\", \"Creatures with tentacles and wings float by\", \"The moon is a giant swirling galaxy\", \"A river of stars leads to an unknown destination\", \"Strange creatures lurk in the shadows\", \"The horizon is a kaleidoscope of colors\", \"The trees whisper secrets in a strange language\"]",
+        temperature=0.7,
+        max_tokens=256,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+
     frames: List[WorldFrame] = []
     variation_frames: Dict[List[WorldFrame]] = {}
     last_path = ''
@@ -175,14 +185,3 @@ def main_loop(settings: Dict) -> None:
     tt_2 = list(itertools.product(*tt))
     for i, c in enumerate(tt_2):
         merge_frames(list(c), dst=f"examples/variation_{i}.png")
-    
-
-
-if __name__ == '__main__':
-    start_time = perf_counter()
-    # prompt = input('What world do you want to play in? ')
-    prompt = 'Equirectangular render of a psychedelic alien world, from a first-person point of view, 8k uhd'
-    settings = {'n': 1, 'size': f'{_F_SIZE}x{_F_SIZE}', 'prompt': prompt}
-    main_loop(settings)
-    run_time = perf_counter() - start_time
-    print(f'It took {run_time:.2f} seconds to run.')
