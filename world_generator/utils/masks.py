@@ -13,10 +13,10 @@ def sides_mask(frame_size: int = 512, variation: bool = False) -> bytes:
     mask.paste(black_part, (0, 0))
     mask.paste(black_part, (frame_size // 4 * 3, 0))
 
-    if variation:
-        mask.paste(black_part, (frame_size // 4, 0))
-        mask.paste(black_part, (frame_size // 2, frame_size // 2))
-        mask.save('debug.png')
+    # if variation:
+    #     mask.paste(black_part, (frame_size // 4, 0))
+    #     mask.paste(black_part, (frame_size // 2, frame_size // 2))
+    #     mask.save('debug.png')
     mask_bytes = BytesIO()
     mask.save(mask_bytes, format='PNG')
     return mask_bytes.getvalue()

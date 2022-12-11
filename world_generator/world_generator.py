@@ -12,6 +12,7 @@ from PIL import Image
 from worldgen.utils.decorators import print_execution_time
 from worldgen.utils.types import WorldFrame
 from worldgen.utils.masks import sides_mask, right_mask
+from worldgen.utils.gpt import get_prompt_variations
 
 
 # TODO: Better config
@@ -100,7 +101,7 @@ def generate_frame_variation(frame: WorldFrame, **kw_settings) -> WorldFrame:
     # Get extend to the right right: 
     response = openai.Image.create_edit(
         image=im_bytes.getvalue(),
-        mask=sides_mask(frame_size=_F_SIZE, variation=True),
+        mask=sides_mask(frame_size=_F_SIZE),
         **kw_settings
     )
     image_url = response['data'][0]['url']
@@ -138,19 +139,11 @@ def merge_frames(frames: List[WorldFrame], dst: Optional[str] = None) -> None:
 def main_loop(settings: Dict) -> None:
     """
     """
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=f"Create a JSON list of 20 related prompts that describe a \"{settings['prompt']}\".\nExample: [\"prompt1\", \"prompt2\", \"prompt3\"]\n\n[\"The sky is a rainbow of swirling colors\", \"Strange creatures darting through the clouds\", \"Gigantic crystals stretch up to the horizon\", \"The air is filled with a dream-like mist\", \"Floating islands filled with vibrant vegetation\", \"Trees of pink, purple, and blue\", \"Distant stars twinkle like neon lights\", \"Glimmering waterfalls cascading through the sky\", \"The ground is covered in a strange luminescent moss\", \"Gigantic mushrooms dot the landscape\", \"Gravity is unpredictable and ever-changing\", \"Time appears to stand still in this realm\", \"A soft, alien melody plays in the background\", \"The sun is a bright, multi-colored prism\", \"Creatures with tentacles and wings float by\", \"The moon is a giant swirling galaxy\", \"A river of stars leads to an unknown destination\", \"Strange creatures lurk in the shadows\", \"The horizon is a kaleidoscope of colors\", \"The trees whisper secrets in a strange language\"]",
-        temperature=0.7,
-        max_tokens=256,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    )
-
     frames: List[WorldFrame] = []
     variation_frames: Dict[List[WorldFrame]] = {}
     last_path = ''
+    prompt_variations = get_prompt_variations(settings['prompt'], num=4)
+
     for i in range(_F_NUM):
         print(f'\nGenereting frame #{i}...')
         if i == 0:
@@ -170,7 +163,9 @@ def main_loop(settings: Dict) -> None:
     
         # VARIATIONS:
         if i > 0 and i < _F_NUM - 1:
-            for j in range(1):
+            for j, var in enumerate(prompt_variations):
+                s = settings.copy()
+                s['prompt'] = var
                 v_url = generate_frame_variation(frame=frame, **settings)
                 v_frame = download_image(v_url, dst=f'.tmpfiles/unique_{i}_{j}.png')
                 variation_frames[i].append(v_frame)
